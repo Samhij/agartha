@@ -1,10 +1,6 @@
 package net.lonk.agartha.entity.custom;
 
-import net.lonk.agartha.entity.ModDamageTypes;
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
@@ -20,14 +16,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidType;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class YakubEntity extends PathfinderMob {
 
-    private BlockPos lightPos = null;
-    private static final BlockState LIGHT_BLOCK = Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, 15);
+    private BlockPos lastLightPos = null;
+    private static final BlockState LIGHT_STATE = Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, 15);
+    private static final int LIGHT_UPDATE_FLAGS = 3;
 
     public YakubEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -58,87 +52,60 @@ public class YakubEntity extends PathfinderMob {
     }
 
     @Override
-    public void tick() {
-        super.tick();
+    public void baseTick() {
+        super.baseTick();
 
-        if (this.isDeadOrDying()) return;
-        if (!this.level().isClientSide()) {
-            BlockPos current = this.blockPosition();
+        if (this.level().isClientSide()) return;
+        boolean shouldEmitLight = this.isAlive();
+        BlockPos currentPos = this.blockPosition();
 
-            if (lightPos == null || !lightPos.equals(current)) {
-                if (lightPos != null) {
-                    BlockState old = level().getBlockState(lightPos);
-                    if (old.is(Blocks.LIGHT)) {
-                        level().setBlock(lightPos, Blocks.AIR.defaultBlockState(), 3);
-                    }
-                    lightPos = null;
+        if (shouldEmitLight) {
+            // Check if the entity has moved to a new block position
+            if (lastLightPos == null || !currentPos.equals(lastLightPos)) {
+                // Clean ip old light if it exists
+                if (lastLightPos != null && this.level().getBlockState(lastLightPos).is(Blocks.LIGHT)) {
+                    this.level().setBlock(lastLightPos, Blocks.AIR.defaultBlockState(), LIGHT_UPDATE_FLAGS);
                 }
 
-                BlockState here = level().getBlockState(current);
-                if (here.isAir() || here.getCollisionShape(level(), current).isEmpty()) {
-                    level().setBlock(current, LIGHT_BLOCK, 3);
-                    lightPos = current;
+                // Place new light at current position
+                if (this.level().getBlockState(currentPos).canBeReplaced()) {
+                    this.level().setBlock(currentPos, LIGHT_STATE, LIGHT_UPDATE_FLAGS);
+                    lastLightPos = currentPos;
+                } else {
+                    // If the current block is not replaceable
+                    lastLightPos = null;
                 }
             }
+        } else {
+            // If the entity should not emit light
+            removeLightBlock();
         }
     }
 
+    // This is called when the entity is removed from the world
     @Override
-    public void die(DamageSource pDamageSource) {
-        if (!this.level().isClientSide() && lightPos != null) {
-            BlockState old = level().getBlockState(lightPos);
-            if (old.is(Blocks.LIGHT)) {
-                level().setBlock(lightPos, Blocks.AIR.defaultBlockState(), 3);
-            }
-            lightPos = null;
-        }
-        super.die(pDamageSource);
+    public void onRemovedFromWorld() {
+        super.onRemovedFromWorld();
+        if (!this.level().isClientSide()) removeLightBlock();
     }
 
-    @Override
-    public void remove(RemovalReason pReason) {
-        if (!this.level().isClientSide() && lightPos != null) {
-            BlockState old = level().getBlockState(lightPos);
-            if (old.is(Blocks.LIGHT)) {
-                level().setBlock(lightPos, Blocks.AIR.defaultBlockState(), 3);
+    // Custom helper method for cleanup
+    private void removeLightBlock() {
+        if (lastLightPos != null) {
+            // Only attempt to remove if the block is actually our light block
+            if (this.level().getBlockState(lastLightPos).is(Blocks.LIGHT)) {
+                this.level().setBlock(lastLightPos, Blocks.AIR.defaultBlockState(), LIGHT_UPDATE_FLAGS);
             }
-            lightPos = null;
+            lastLightPos = null;
         }
-        super.remove(pReason);
     }
 
     @Override
     public boolean doHurtTarget(Entity pEntity) {
-        float damage = (float) this.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
-        DamageSource source = new DamageSource(ModDamageTypes.AGARTHAN_DAMAGE.getHolder().get(), this);
-
-        if (pEntity instanceof Player player) {
-            if (player.isDeadOrDying()) {
-                this.remove(RemovalReason.DISCARDED);
-            }
+        boolean result = super.doHurtTarget(pEntity);
+        if (result && pEntity instanceof Player && ((Player) pEntity).isDeadOrDying()) {
+            this.remove(RemovalReason.DISCARDED);
         }
-
-        return super.doHurtTarget(pEntity);
-//        return pEntity.hurt(source, damage);
-    }
-
-    @Override
-    protected @Nullable SoundEvent getAmbientSound() {
-        return null;
-    }
-
-    @Override
-    protected @Nullable SoundEvent getHurtSound(@NotNull DamageSource pDamageSource) {
-        return null;
-    }
-
-    @Override
-    protected @Nullable SoundEvent getDeathSound() {
-        return null;
-    }
-
-    @Override
-    public boolean isPushedByFluid(FluidType type) {
-        return false;
+        return result;
     }
 }
