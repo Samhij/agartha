@@ -31,7 +31,7 @@ public class YakubEntity extends PathfinderMob {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 500.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.4D)
-                .add(Attributes.ATTACK_DAMAGE, 10.0D);
+                .add(Attributes.ATTACK_DAMAGE, 15.0D);
     }
 
     @Override
