@@ -1,0 +1,12 @@
+{
+  "yakub_ambient": {
+    "subtitle": "subtitles.agartha.yakub_ambient",
+    "sounds": [
+      {
+        "name": "agartha:entity/yakub_ambient",
+        "volume": 0.1,
+        "pitch": 1.0
+      }
+    ]
+  }
+}

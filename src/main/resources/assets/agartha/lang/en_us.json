@@ -1,0 +1,10 @@
+{
+  "subtitles.agartha.yakub_ambient": "AGARTHA",
+  "entity.agartha.yakub": "Yakub",
+
+  "death.attack.agarthan_damage": "%1$s was not allowed into Agartha.",
+  "death.attack.agarthan_damage.player": "%1$s was not allowed into Agartha by %2$s.",
+
+  "item.agartha.white_monster": "White Monster",
+  "item.agartha.yakub_spawn_egg": "Yakub Spawn Egg"
+}

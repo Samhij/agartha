@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "net.lonk.agartha.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "agartha.mixins.refmap.json",
+  "mixins": [
+    "ThrownEggMixin"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
