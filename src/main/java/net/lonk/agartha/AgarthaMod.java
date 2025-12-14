@@ -1,7 +1,6 @@
 package net.lonk.agartha;
 
 import com.mojang.logging.LogUtils;
-import net.lonk.agartha.entity.ModDamageTypes;
 import net.lonk.agartha.entity.ModEntities;
 import net.lonk.agartha.entity.custom.YakubEntity;
 import net.lonk.agartha.item.ModItems;
@@ -70,8 +69,6 @@ public class AgarthaMod {
         modEventBus.register(ModEntities.class);
 
         ModSounds.SOUND_EVENTS.register(modEventBus);
-
-//        ModDamageTypes.DAMAGE_TYPES.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);

@@ -1,6 +1,12 @@
 package net.lonk.agartha.entity.custom;
 
+import net.lonk.agartha.entity.ModDamageTypes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
@@ -102,7 +108,13 @@ public class YakubEntity extends PathfinderMob {
 
     @Override
     public boolean doHurtTarget(Entity pEntity) {
-        boolean result = super.doHurtTarget(pEntity);
+        RegistryAccess registryAccess = this.level().registryAccess();
+        Holder<DamageType> damageTypeHolder = registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ModDamageTypes.AGARTHAN_DAMAGE);
+
+        float amount = (float) this.getAttribute(Attributes.ATTACK_DAMAGE).getValue();
+        DamageSource source = new DamageSource(damageTypeHolder, this);
+
+        boolean result = pEntity.hurt(source, amount);
         if (result && pEntity instanceof Player && ((Player) pEntity).isDeadOrDying()) {
             this.remove(RemovalReason.DISCARDED);
         }

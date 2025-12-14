@@ -1,0 +1,7 @@
+{
+  "message_id": "agarthan_damage",
+  "exhaustion": 0.1,
+  "scaling": "always",
+  "effects": "hurt",
+  "death_message_type": "default"
+}
