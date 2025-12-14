@@ -16,12 +16,7 @@ public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, AgarthaMod.MODID);
 
     public static final RegistryObject<EntityType<YakubEntity>> YAKUB = ENTITY_TYPES.register("yakub",
-            () -> EntityType.Builder.of(YakubEntity::new, MobCategory.MONSTER)
+            () -> EntityType.Builder.of(YakubEntity::new, MobCategory.CREATURE)
                     .sized(0.6f, 1.8f)
-                    .build(ResourceLocation.fromNamespaceAndPath(AgarthaMod.MODID, "yakub").toString()));
-
-    @SubscribeEvent
-    public static void registerAttributes(EntityAttributeCreationEvent event) {
-        event.put(YAKUB.get(), YakubEntity.createAttributes().build());
-    }
+                    .build("yakub"));
 }

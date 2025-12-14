@@ -1,6 +1,7 @@
-package net.lonk.agartha.entity.custom;
+package net.lonk.agartha.entity.client;
 
 import net.lonk.agartha.AgarthaMod;
+import net.lonk.agartha.entity.custom.YakubEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;

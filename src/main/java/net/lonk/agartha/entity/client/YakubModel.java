@@ -1,4 +1,4 @@
-package net.lonk.agartha.entity.custom;// Made with Blockbench 5.0.5
+package net.lonk.agartha.entity.client;// Made with Blockbench 5.0.5
 // Exported for Minecraft version 1.17 or later with Mojang mappings
 // Paste this class into your mod and generate all required imports
 
@@ -6,6 +6,7 @@ package net.lonk.agartha.entity.custom;// Made with Blockbench 5.0.5
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.lonk.agartha.AgarthaMod;
+import net.lonk.agartha.entity.custom.YakubEntity;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;

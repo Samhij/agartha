@@ -16,6 +16,7 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -33,28 +34,6 @@ import java.util.WeakHashMap;
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(AgarthaMod.MODID)
 public class AgarthaMod {
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-    public static class ForgeEvents {
-        private static final Map<YakubEntity, YakubAmbientSound> ambientSounds = new WeakHashMap<>();
-
-        @SubscribeEvent
-        public static void onClientTick(TickEvent.ClientTickEvent event) {
-            if (event.phase == TickEvent.Phase.END) {
-                Minecraft mc = Minecraft.getInstance();
-                if (mc.level != null) {
-                    mc.level.getEntitiesOfClass(YakubEntity.class, mc.player.getBoundingBox().inflate(50)).forEach(yakub -> {
-                        if (!ambientSounds.containsKey(yakub) && yakub.isAlive()) {
-                            YakubAmbientSound sound = new YakubAmbientSound(yakub);
-                            mc.getSoundManager().play(sound);
-                            ambientSounds.put(yakub, sound);
-                        }
-                    });
-                    ambientSounds.entrySet().removeIf(entry -> !entry.getKey().isAlive() || entry.getKey().isRemoved());
-                }
-            }
-        }
-    }
-
     // Define mod id in a common place for everything to reference
     public static final String MODID = "agartha";
     // Directly reference a slf4j logger
@@ -83,25 +62,7 @@ public class AgarthaMod {
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        // Some common setup code
         LOGGER.info("Does common setup come from a land down under?");
-
-        if (Config.logDirtBlock)
-            LOGGER.info("DIRT BLOCK >> {}", ForgeRegistries.BLOCKS.getKey(Blocks.DIRT));
-
-        LOGGER.info(Config.magicNumberIntroduction + Config.magicNumber);
-
-        Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
-
-        event.enqueueWork(() -> {
-            SpawnPlacements.register(
-                    ModEntities.YAKUB.get(),
-                    SpawnPlacements.Type.ON_GROUND,
-                    Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                    // Use the standard check for monsters (checks light level and difficulty)
-                    Mob::checkMobSpawnRules
-            );
-        });
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
@@ -118,16 +79,5 @@ public class AgarthaMod {
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("Does the server come from a land down under?");
-    }
-
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents {
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event) {
-            // Some client setup code
-            LOGGER.info("Does client setup come from a land down under?");
-            LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
-        }
     }
 }
