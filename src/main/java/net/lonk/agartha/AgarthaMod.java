@@ -1,6 +1,7 @@
 package net.lonk.agartha;
 
 import com.mojang.logging.LogUtils;
+import net.lonk.agartha.block.ModBlocks;
 import net.lonk.agartha.entity.ModEntities;
 import net.lonk.agartha.entity.custom.YakubEntity;
 import net.lonk.agartha.item.ModItems;
@@ -64,6 +65,7 @@ public class AgarthaMod {
 
         // Register the Deferred Registers
         ModItems.ITEMS.register(modEventBus);
+        ModBlocks.BLOCKS.register(modEventBus);
 
         ModEntities.ENTITY_TYPES.register(modEventBus);
         modEventBus.register(ModEntities.class);

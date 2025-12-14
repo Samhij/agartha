@@ -27,7 +27,7 @@ public abstract class ThrownEggMixin {
         assert level != null;
         if (!level.isClientSide()) {
             // Reimplement the chance logic (1 in 8 chance to spawn a Yakub)
-            if (random.nextInt(8) == 0) {
+            if (random.nextInt(100) == 0) {
                 YakubEntity yakub = ModEntities.YAKUB.get().create(level);
                 if (yakub != null) {
                     // Set position to the egg's position
