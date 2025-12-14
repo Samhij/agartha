@@ -11,12 +11,12 @@ import net.minecraft.world.level.Level;
 
 public class WhiteMonsterItem extends HoneyBottleItem {
     public WhiteMonsterItem(Properties pProperties) {
-        super(pProperties.durability(64));
+        super(pProperties.durability(5));
     }
 
     @Override
     public int getMaxDamage(ItemStack stack) {
-        return 64;
+        return 5;
     }
 
     @Override
