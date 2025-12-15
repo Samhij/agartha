@@ -35,7 +35,7 @@ public class YakubSpawner {
         int timer = playerTimers.get(playerId) - 1;
         playerTimers.put(playerId, timer);
 
-        if (timer <= TIMER_DURATION / 2 && !hasSentWarning && YakubEntity.canSpawn(player.level())) {
+        if (timer <= TIMER_DURATION / 2 && !hasSentWarning && YakubEntity.canSpawn) {
             // Notify player when half the time has passed
             player.displayClientMessage(Component.literal("§4Do you come from a land down under?§r"), true);
             hasSentWarning = true;
@@ -48,13 +48,14 @@ public class YakubSpawner {
 
             Level level = player.level();
 
-            if (YakubEntity.canSpawn(level)) {
+            if (YakubEntity.canSpawn) {
                 // Spawn at random location near player
                 double offsetX = (level.random.nextDouble() - 0.5) * SPAWN_RADIUS * 2;
                 double offsetZ = (level.random.nextDouble() - 0.5) * SPAWN_RADIUS * 2;
                 YakubEntity newYakub = new YakubEntity(ModEntities.YAKUB.get(), level);
                 newYakub.setPos(player.getX() + offsetX, player.getY(), player.getZ() + offsetZ);
                 level.addFreshEntity(newYakub);
+                YakubEntity.canSpawn = false;
             }
         }
     }

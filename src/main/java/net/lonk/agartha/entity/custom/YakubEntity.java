@@ -29,6 +29,8 @@ import org.joml.Vector3f;
 
 public class YakubEntity extends PathfinderMob {
 
+    public static boolean canSpawn = true;
+
     private BlockPos lastLightPos = null;
     private static final BlockState LIGHT_STATE = Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, 15);
     private static final int LIGHT_UPDATE_FLAGS = 3;
@@ -47,10 +49,6 @@ public class YakubEntity extends PathfinderMob {
                 .add(Attributes.MOVEMENT_SPEED, 0.5D)
                 .add(Attributes.ATTACK_DAMAGE, 15.0D)
                 .add(Attributes.FOLLOW_RANGE, 50.0D);
-    }
-
-    public static boolean canSpawn(Level level) {
-        return level.getEntitiesOfClass(YakubEntity.class, new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)).isEmpty();
     }
 
     @Override
@@ -116,6 +114,7 @@ public class YakubEntity extends PathfinderMob {
     @Override
     public void onRemovedFromWorld() {
         super.onRemovedFromWorld();
+        canSpawn = true;
         if (!this.level().isClientSide()) removeLightBlock();
     }
 

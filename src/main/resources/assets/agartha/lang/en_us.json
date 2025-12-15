@@ -2,6 +2,9 @@
   "subtitles.agartha.yakub_ambient": "AGARTHA",
   "entity.agartha.yakub": "Yakub",
 
+  "gamerule.yakubDespawnTime": "Yakub Despawn Time",
+  "gamerule.yakubSpawnTime": "Yakub Spawn Time",
+
   "death.attack.agarthan_damage": "%1$s was not allowed into Agartha.",
   "death.attack.agarthan_damage.player": "%1$s was not allowed into Agartha by %2$s.",
 
