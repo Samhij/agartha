@@ -10,10 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -23,11 +20,11 @@ import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import org.joml.Vector3f;
 
 public class YakubEntity extends PathfinderMob {
 
@@ -35,18 +32,25 @@ public class YakubEntity extends PathfinderMob {
     private static final BlockState LIGHT_STATE = Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, 15);
     private static final int LIGHT_UPDATE_FLAGS = 3;
 
+    public static final int DESPAWN_TIME = 6000; // 5 minutes = 5 * 60 * 20 = 6000 ticks
+    private static int despawnTimer = 0;
+
     public YakubEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
     }
 
     private final ServerBossEvent bossEvent = new ServerBossEvent(this.getDisplayName(), BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
 
-
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 500.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.5D)
-                .add(Attributes.ATTACK_DAMAGE, 15.0D);
+                .add(Attributes.ATTACK_DAMAGE, 15.0D)
+                .add(Attributes.FOLLOW_RANGE, 50.0D);
+    }
+
+    public static boolean canSpawn(Level level) {
+        return level.getEntitiesOfClass(YakubEntity.class, new AABB(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY)).isEmpty();
     }
 
     @Override
@@ -56,7 +60,7 @@ public class YakubEntity extends PathfinderMob {
 
         // 2. Melee attack goal (high priority)
         // This makes it aggressively pursue the player
-        this.targetSelector.addGoal(2, new MeleeAttackGoal(this, 1.2D, false));
+        this.targetSelector.addGoal(2, new MeleeAttackGoal(this, 1.2D, true));
 
         // 3. Fallback: If no target, wander around (low priority)
         this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0D));
@@ -67,18 +71,14 @@ public class YakubEntity extends PathfinderMob {
     }
 
     @Override
-    public boolean checkSpawnRules(LevelAccessor pLevel, MobSpawnType pSpawnReason) {
-        for (Entity entity : pLevel.getEntitiesOfClass(YakubEntity.class, AABB.ofSize(this.position(), 1000, 1000, 1000))) {
-            if (entity != this) {
-                return false; // Another YakubEntity is within 1000 blocks
-            }
-        }
-        return super.checkSpawnRules(pLevel, pSpawnReason);
-    }
+    public void tick() {
+        super.tick();
 
-    public static boolean canSpawn(EntityType<YakubEntity> entityType, LevelAccessor level, MobSpawnType spawnType, BlockPos pos) {
-        AABB aabb = AABB.ofSize(pos.getCenter(), 1000, 1000, 1000);
-        return level.getEntitiesOfClass(YakubEntity.class, aabb).isEmpty();
+        despawnTimer += 1;
+        if (despawnTimer >= DESPAWN_TIME) {
+            this.remove(RemovalReason.DISCARDED);
+            despawnTimer = 0; // Reset timer for next spawn
+        }
     }
 
     @Override

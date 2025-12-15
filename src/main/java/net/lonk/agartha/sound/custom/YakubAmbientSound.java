@@ -19,7 +19,7 @@ public class YakubAmbientSound extends SimpleSoundInstance implements TickableSo
                 RandomSource.create(),
                 true,
                 0,
-                Attenuation.LINEAR,
+                Attenuation.NONE,
                 yakub.getX(), yakub.getY(), yakub.getZ(),
                 false
         );
