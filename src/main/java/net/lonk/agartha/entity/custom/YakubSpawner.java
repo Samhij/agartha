@@ -18,7 +18,6 @@ import java.util.UUID;
 @Mod.EventBusSubscriber
 public class YakubSpawner {
     private static final Map<UUID, Integer> playerTimers = new HashMap<>();
-    private static final int TIMER_DURATION = 2400; // 2 minutes = 2 * 60 * 20 = 2400 ticks
     private static final double SPAWN_RADIUS = 50.0D;
 
     private static boolean hasSentWarning = false;
@@ -26,6 +25,7 @@ public class YakubSpawner {
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END || event.player.level().isClientSide()) return;
+        final int TIMER_DURATION = event.player.level().getGameRules().getInt(net.lonk.agartha.AgarthaMod.YAKUB_SPAWN_TIME_RULE);
 
         ServerPlayer player = (ServerPlayer) event.player;
         UUID playerId = player.getUUID();

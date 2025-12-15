@@ -1,5 +1,6 @@
 package net.lonk.agartha.entity.custom;
 
+import net.lonk.agartha.AgarthaMod;
 import net.lonk.agartha.entity.ModDamageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -32,7 +33,6 @@ public class YakubEntity extends PathfinderMob {
     private static final BlockState LIGHT_STATE = Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, 15);
     private static final int LIGHT_UPDATE_FLAGS = 3;
 
-    public static final int DESPAWN_TIME = 6000; // 5 minutes = 5 * 60 * 20 = 6000 ticks
     private static int despawnTimer = 0;
 
     public YakubEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
@@ -75,7 +75,7 @@ public class YakubEntity extends PathfinderMob {
         super.tick();
 
         despawnTimer += 1;
-        if (despawnTimer >= DESPAWN_TIME) {
+        if (despawnTimer >= this.level().getGameRules().getInt(AgarthaMod.YAKUB_DESPAWN_TIME_RULE)) {
             this.remove(RemovalReason.DISCARDED);
             despawnTimer = 0; // Reset timer for next spawn
         }

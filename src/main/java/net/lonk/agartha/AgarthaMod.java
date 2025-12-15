@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.api.distmarker.Dist;
@@ -38,6 +39,9 @@ public class AgarthaMod {
     public static final String MODID = "agartha";
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
+
+    public static final GameRules.Key<GameRules.IntegerValue> YAKUB_SPAWN_TIME_RULE = GameRules.register("yakubSpawnTime", GameRules.Category.MOBS, GameRules.IntegerValue.create(2400));
+    public static final GameRules.Key<GameRules.IntegerValue> YAKUB_DESPAWN_TIME_RULE = GameRules.register("yakubDespawnTime", GameRules.Category.MOBS, GameRules.IntegerValue.create(6000));
 
     public AgarthaMod(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
