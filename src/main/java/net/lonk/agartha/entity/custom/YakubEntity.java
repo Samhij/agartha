@@ -9,8 +9,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
@@ -34,6 +37,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.joml.Vector3f;
 
 import java.util.HashMap;
@@ -147,8 +152,14 @@ public class YakubEntity extends PathfinderMob {
             this.remove(RemovalReason.DISCARDED);
         }
 
-        if (this.isInWater()) {
-            this.remove(RemovalReason.DISCARDED);
+        if (!this.level().isClientSide()) {
+            boolean feetInWater = this.level().getFluidState(this.blockPosition()).is(FluidTags.WATER);
+            FluidType waterType = ForgeRegistries.FLUID_TYPES.get().getValue(ResourceLocation.fromNamespaceAndPath("minecraft", "water"));
+            boolean eyesInWater = this.isEyeInFluidType(waterType);
+
+            if (feetInWater && eyesInWater) {
+                this.remove(RemovalReason.DISCARDED);
+            }
         }
     }
 
