@@ -22,6 +22,11 @@ import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightBlock;
@@ -30,6 +35,9 @@ import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class YakubEntity extends PathfinderMob {
     private BlockPos lastLightPos = null;
@@ -41,9 +49,31 @@ public class YakubEntity extends PathfinderMob {
     // Climbing flag (same approach spiders use)
     private static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(YakubEntity.class, EntityDataSerializers.BYTE);
 
+    private int despawnTimer = 0;
+    private final int despawnTime;
+
     public YakubEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
-        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+        despawnTime = this.level().getGameRules().getInt(AgarthaMod.YAKUB_DESPAWN_TIME);
+
+        if (!this.level().isClientSide()) {
+            // Create the boots item stack
+            ItemStack boots = new ItemStack(Items.LEATHER_BOOTS);
+            // Prepare enchantments map
+            Map<Enchantment, Integer> enchantments = new HashMap<>();
+
+            // Add enchantments to the map
+            enchantments.put(Enchantments.FROST_WALKER, 2);
+            enchantments.put(Enchantments.UNBREAKING, 3);
+
+            // Apply enchantments to the boots
+            EnchantmentHelper.setEnchantments(enchantments, boots);
+
+            // Equip the boots to the entity
+            this.setItemSlot(EquipmentSlot.FEET, boots);
+            // Set drop chance to 0 to prevent players from obtaining them
+            this.setDropChance(EquipmentSlot.FEET, 0.0f);
+        }
     }
 
     private final ServerBossEvent bossEvent = new ServerBossEvent(this.getDisplayName(), BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
@@ -93,9 +123,6 @@ public class YakubEntity extends PathfinderMob {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(1, new RandomSwimmingGoal(this, 1.0D, 1));
-
         // 1. Target the nearest player (highest priority)
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, false));
 
@@ -109,6 +136,20 @@ public class YakubEntity extends PathfinderMob {
         // 4. Look around
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        despawnTimer += 1;
+        if (!this.level().isClientSide() && despawnTimer >= despawnTime) {
+            despawnTimer = 0;
+            this.remove(RemovalReason.DISCARDED);
+        }
+
+        if (this.isInWater()) {
+            this.remove(RemovalReason.DISCARDED);
+        }
     }
 
     @Override
@@ -197,18 +238,6 @@ public class YakubEntity extends PathfinderMob {
     @Override
     public void aiStep() {
         super.aiStep();
-
-        if (this.isInWater()) {
-            Vec3 vel = this.getDeltaMovement();
-            // Stop sinking
-            if (vel.y < 0.0D) {
-                this.setDeltaMovement(vel.x, 0.0D, vel.z);
-            }
-            // Treat as on ground so pathfinder/walking goals work
-            this.setOnGround(true);
-            this.fallDistance = 0.0F;
-            this.setSwimming(false); // Ensure it's not in swimming state
-        }
         this.setClimbing(this.horizontalCollision);
         this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
     }

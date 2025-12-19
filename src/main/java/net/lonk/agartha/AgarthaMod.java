@@ -41,6 +41,7 @@ public class AgarthaMod {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static final GameRules.Key<GameRules.IntegerValue> YAKUB_SPAWN_CHANCE = GameRules.register("yakubSpawnChance", GameRules.Category.MOBS, GameRules.IntegerValue.create(1000));
+    public static final GameRules.Key<GameRules.IntegerValue> YAKUB_DESPAWN_TIME = GameRules.register("yakubDespawnTime", GameRules.Category.MOBS, GameRules.IntegerValue.create(2400));
 
     public AgarthaMod(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
