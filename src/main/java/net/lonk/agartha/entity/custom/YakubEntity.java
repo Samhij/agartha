@@ -6,6 +6,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
@@ -14,31 +17,33 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 public class YakubEntity extends PathfinderMob {
-
-    public static boolean canSpawn = true;
-
     private BlockPos lastLightPos = null;
     private static final BlockState LIGHT_STATE = Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, 15);
     private static final int LIGHT_UPDATE_FLAGS = 3;
 
-    private static int despawnTimer = 0;
+    protected static boolean canSpawn = true;
+
+    // Climbing flag (same approach spiders use)
+    private static final EntityDataAccessor<Byte> DATA_FLAGS_ID = SynchedEntityData.defineId(YakubEntity.class, EntityDataSerializers.BYTE);
 
     public YakubEntity(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
     }
 
     private final ServerBossEvent bossEvent = new ServerBossEvent(this.getDisplayName(), BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.PROGRESS);
@@ -48,11 +53,49 @@ public class YakubEntity extends PathfinderMob {
                 .add(Attributes.MAX_HEALTH, 500.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.5D)
                 .add(Attributes.ATTACK_DAMAGE, 15.0D)
-                .add(Attributes.FOLLOW_RANGE, 50.0D);
+                .add(Attributes.FOLLOW_RANGE, 150.0D);
+    }
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_FLAGS_ID, (byte) 0);
+    }
+
+    private boolean isClimbing() {
+        return (this.entityData.get(DATA_FLAGS_ID) & 1) != 0;
+    }
+
+    private void setClimbing(boolean climbing) {
+        byte b0 = this.entityData.get(DATA_FLAGS_ID);
+        if (climbing) {
+            b0 = (byte) (b0 | 1);
+        } else {
+            b0 = (byte) (b0 & ~1);
+        }
+        this.entityData.set(DATA_FLAGS_ID, b0);
+    }
+
+    @Override
+    public boolean onClimbable() {
+        return this.isClimbing();
+    }
+
+    @Override
+    protected PathNavigation createNavigation(Level pLevel) {
+        return new AmphibiousPathNavigation(this, level());
+    }
+
+    @Override
+    public boolean canBreatheUnderwater() {
+        return true;
     }
 
     @Override
     protected void registerGoals() {
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new RandomSwimmingGoal(this, 1.0D, 1));
+
         // 1. Target the nearest player (highest priority)
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, false));
 
@@ -66,17 +109,6 @@ public class YakubEntity extends PathfinderMob {
         // 4. Look around
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-
-        despawnTimer += 1;
-        if (despawnTimer >= this.level().getGameRules().getInt(AgarthaMod.YAKUB_DESPAWN_TIME_RULE)) {
-            this.remove(RemovalReason.DISCARDED);
-            despawnTimer = 0; // Reset timer for next spawn
-        }
     }
 
     @Override
@@ -116,6 +148,12 @@ public class YakubEntity extends PathfinderMob {
         super.onRemovedFromWorld();
         canSpawn = true;
         if (!this.level().isClientSide()) removeLightBlock();
+    }
+
+    @Override
+    public void die(DamageSource pDamageSource) {
+        super.die(pDamageSource);
+        canSpawn = true;
     }
 
     // Custom helper method for cleanup
@@ -159,6 +197,19 @@ public class YakubEntity extends PathfinderMob {
     @Override
     public void aiStep() {
         super.aiStep();
+
+        if (this.isInWater()) {
+            Vec3 vel = this.getDeltaMovement();
+            // Stop sinking
+            if (vel.y < 0.0D) {
+                this.setDeltaMovement(vel.x, 0.0D, vel.z);
+            }
+            // Treat as on ground so pathfinder/walking goals work
+            this.setOnGround(true);
+            this.fallDistance = 0.0F;
+            this.setSwimming(false); // Ensure it's not in swimming state
+        }
+        this.setClimbing(this.horizontalCollision);
         this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
     }
 }

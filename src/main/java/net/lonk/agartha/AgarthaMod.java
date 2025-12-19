@@ -40,8 +40,7 @@ public class AgarthaMod {
     // Directly reference a slf4j logger
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final GameRules.Key<GameRules.IntegerValue> YAKUB_SPAWN_TIME_RULE = GameRules.register("yakubSpawnTime", GameRules.Category.MOBS, GameRules.IntegerValue.create(2400));
-    public static final GameRules.Key<GameRules.IntegerValue> YAKUB_DESPAWN_TIME_RULE = GameRules.register("yakubDespawnTime", GameRules.Category.MOBS, GameRules.IntegerValue.create(6000));
+    public static final GameRules.Key<GameRules.IntegerValue> YAKUB_SPAWN_CHANCE = GameRules.register("yakubSpawnChance", GameRules.Category.MOBS, GameRules.IntegerValue.create(1000));
 
     public AgarthaMod(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
