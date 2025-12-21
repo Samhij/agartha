@@ -8,6 +8,7 @@ import net.lonk.agartha.item.ModItems;
 import net.lonk.agartha.sound.ModSounds;
 import net.lonk.agartha.sound.custom.YakubAmbientSound;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.item.CreativeModeTabs;
