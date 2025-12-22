@@ -19,6 +19,13 @@ public class ModBlockTagGenerator extends BlockTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
         tag(BlockTags.MINEABLE_WITH_PICKAXE)
-                .add(ModBlocks.EXAMPLE_BLOCK.get());
+                .add(ModBlocks.AGARTHIUM_ORE.get());
+
+        tag(BlockTags.NEEDS_DIAMOND_TOOL)
+                .add(ModBlocks.AGARTHIUM_BLOCK.get())
+                .add(ModBlocks.AGARTHIUM_ORE.get());
+
+        tag(BlockTags.BEACON_BASE_BLOCKS)
+                .add(ModBlocks.AGARTHIUM_BLOCK.get());
     }
 }

@@ -19,6 +19,9 @@ public class ModItemModelProvider extends ItemModelProvider {
     protected void registerModels() {
         simpleItem(ModItems.WHITE_MONSTER);
         simpleItem(ModItems.YAKUB_SPAWN_EGG);
+
+        simpleItem(ModItems.AGARTHAN_RESIDUE);
+        simpleItem(ModItems.AGARTHIUM);
     }
 
     private ItemModelBuilder simpleItem(RegistryObject<Item> item) {

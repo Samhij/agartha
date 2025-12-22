@@ -51,7 +51,7 @@ public class ModDimensions {
         HolderGetter<DimensionType> dimTypes = context.lookup(Registries.DIMENSION_TYPE);
         HolderGetter<NoiseGeneratorSettings> noiseGenSettings = context.lookup(Registries.NOISE_SETTINGS);
 
-        // 1. Define your biome mapping using Climate Parameters
+        // 1. Define biome mapping using Climate Parameters
         // Climate.parameters(temp, humidity, continentalness, erosion, depth, weirdness, offset)
         // Values range from -1.0 to 1.0
         MultiNoiseBiomeSource biomeSource = MultiNoiseBiomeSource.createFromList(
@@ -82,7 +82,7 @@ public class ModDimensions {
         // 2. Create the generator using the MultiNoise source
         NoiseBasedChunkGenerator noiseBasedChunkGenerator = new NoiseBasedChunkGenerator(
                 biomeSource,
-                noiseGenSettings.getOrThrow(NoiseGeneratorSettings.CAVES)
+                noiseGenSettings.getOrThrow(NoiseGeneratorSettings.FLOATING_ISLANDS)
         );
 
         LevelStem stem = new LevelStem(dimTypes.getOrThrow(ModDimensions.AGARTHA_DIM_TYPE), noiseBasedChunkGenerator);

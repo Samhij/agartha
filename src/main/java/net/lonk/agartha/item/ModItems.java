@@ -18,4 +18,10 @@ public class ModItems {
 
     public static final RegistryObject<Item> YAKUB_SPAWN_EGG = ITEMS.register("yakub_spawn_egg",
             () -> new ForgeSpawnEggItem(ModEntities.YAKUB, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
+
+    public static final RegistryObject<Item> AGARTHAN_RESIDUE = ITEMS.register("agarthan_residue",
+            () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> AGARTHIUM = ITEMS.register("agarthium",
+            () -> new Item(new Item.Properties()));
 }

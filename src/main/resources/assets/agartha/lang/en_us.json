@@ -11,6 +11,13 @@
   "advancements.agartha.white_monster.title": "The Good Stuff",
   "advancements.agartha.white_monster.description": "Kill Yakub and obtain a can of White Monster",
 
+  "creativetab.agartha_tab": "Agartha",
+
   "item.agartha.white_monster": "White Monster",
-  "item.agartha.yakub_spawn_egg": "Yakub Spawn Egg"
+  "item.agartha.yakub_spawn_egg": "Yakub Spawn Egg",
+  "item.agartha.agarthium": "Agarthium",
+  "item.agartha.agarthan_residue": "Agarthan Residue",
+
+  "block.agartha.agarthium_block": "Block of Agarthium",
+  "block.agartha.agarthium_ore": "Agarthium Ore"
 }

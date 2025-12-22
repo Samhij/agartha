@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import net.lonk.agartha.block.ModBlocks;
 import net.lonk.agartha.entity.ModEntities;
 import net.lonk.agartha.entity.custom.YakubEntity;
+import net.lonk.agartha.item.ModCreativeModeTabs;
 import net.lonk.agartha.item.ModItems;
 import net.lonk.agartha.sound.ModSounds;
 import net.lonk.agartha.sound.custom.YakubAmbientSound;
@@ -44,12 +45,14 @@ public class AgarthaMod {
     public static final GameRules.Key<GameRules.IntegerValue> YAKUB_SPAWN_CHANCE = GameRules.register("yakubSpawnChance", GameRules.Category.MOBS, GameRules.IntegerValue.create(1000));
     public static final GameRules.Key<GameRules.IntegerValue> YAKUB_DESPAWN_TIME = GameRules.register("yakubDespawnTime", GameRules.Category.MOBS, GameRules.IntegerValue.create(2400));
 
-    public static final GameRules.Key<GameRules.IntegerValue> WHITE_MONSTER_TELEPORT_CHANCE = GameRules.register("whiteMonsterTeleportChance", GameRules.Category.MOBS, GameRules.IntegerValue.create(200));
+    public static final GameRules.Key<GameRules.IntegerValue> WHITE_MONSTER_TELEPORT_CHANCE = GameRules.register("whiteMonsterTeleportChance", GameRules.Category.MOBS, GameRules.IntegerValue.create(10));
 
     public AgarthaMod(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
 
         // Register the Deferred Registers
+        ModCreativeModeTabs.CREATIVE_MODE_TABS.register(modEventBus);
+
         ModItems.ITEMS.register(modEventBus);
         ModBlocks.BLOCKS.register(modEventBus);
 
@@ -80,11 +83,5 @@ public class AgarthaMod {
         if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
             event.accept(ModItems.YAKUB_SPAWN_EGG);
         }
-    }
-
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        LOGGER.info("Does the server come from a land down under?");
     }
 }
